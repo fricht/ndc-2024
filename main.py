@@ -44,6 +44,13 @@ JUMP = (32, 176)
 ETOILE3 = (8, 192)
 ETOILE5 = (16, 192)
 
+SLIME_ANIM_LENGTH = 6
+SLIME_ANIM = (
+    104,
+    112,
+)
+
+
 
 class MainGame:
     def __init__(self):
@@ -204,6 +211,8 @@ class Character:
         self.velocity = Vector2(0, 0)
         self.can_jump = True
         self.score = 0
+        self.anim_frame = 0
+        self.anim_interval = 4
 
     def update(self, boxes, pieces, etoiles3, etoiles5, coils):
         self.velocity.x = int(pyxel.btn(pyxel.KEY_RIGHT) - pyxel.btn(pyxel.KEY_LEFT)) * self.SPEED
@@ -253,10 +262,14 @@ class Character:
         for coil in coils:
             if coil.is_box_colliding(self.hitbox.set_at(self.pos)):
                 self.velocity.y = self.COIL_JUMP_HEIGHT
+        ## ANIMATION
+        self.anim_frame += 1
+        if self.anim_frame > SLIME_ANIM_LENGTH * self.anim_interval:
+            self.anim_frame = 0
 
     def draw(self, camera):
         camera.lerp_to(self.pos, 0.08)
-        pyxel.blt(camera.transformX(self.pos.x), camera.transformY(self.pos.y), 0, 0, 104, TILE_SIZE, TILE_SIZE, colkey=TRANSPARENT)
+        pyxel.blt(camera.transformX(self.pos.x), camera.transformY(self.pos.y), 0, int(self.anim_frame / self.anim_interval) * 8, SLIME_ANIM[int(self.velocity.x <= 0)], TILE_SIZE, TILE_SIZE, colkey=TRANSPARENT)
         pyxel.text(2, 2, "Score : %i" % self.score, 0)
 
 
@@ -274,7 +287,7 @@ class Game(Screen):
         ## animation
         self.pframe = 0
         ## timer
-        self.timer = 5 * 30
+        self.timer = 20 * 30
 
     def get_collisionnables(self):
         self.boxes = set()
