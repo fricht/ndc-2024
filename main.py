@@ -19,7 +19,7 @@ class MainGame:
 
 
 class Screen: # abstract class
-    cls_col = 1
+    cls_col = 0
     def __init__(self, game):
         self.game = game
     def update(self):
@@ -31,13 +31,14 @@ class Screen: # abstract class
 class MainMenu(Screen):
     def __init__(self):
         self.bg_col = 1
-        self
+        self.fg_col = 2
+        self.cls_col = 6
 
     def update(self):
         pass
 
     def render(self):
-        pyxel.rect(10, 10, 15, 15, 1)
+        pyxel.rect(10, 10, 15, 15, self.bg_col)
 
 
 
