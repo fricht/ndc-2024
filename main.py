@@ -172,9 +172,11 @@ class MainMenu(Screen):
             self.gen_cols()
 
     def render(self):
-        pyxel.rect(10, 10, 15, 15, self.txt_col)
-        pyxel.text(SCREEN_SIZE / 2, SCREEN_SIZE / 2, 'Chicken Quest !', self.txt_col)
-        pyxel.text(0, SCREEN_SIZE / 2 + 10, 'Press SPACE to play...', self.txt_col)
+        # pyxel.blt(30, 30, 0, 0, 104, TILE_SIZE, TILE_SIZE)
+        title = 'Slime Quest !'
+        pyxel.text(SCREEN_SIZE / 2 - (int(len(title) * 2)), SCREEN_SIZE / 2, title, self.txt_col)
+        play = 'Appuyez sur espace pour jouer...'
+        pyxel.text(SCREEN_SIZE / 2 - (int(len(play) * 2)), SCREEN_SIZE / 2 + 10, play, self.txt_col)
 
 
 class GameOver(Screen):
