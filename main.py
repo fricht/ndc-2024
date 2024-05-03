@@ -175,6 +175,21 @@ class MainMenu(Screen):
         pyxel.text(0, SCREEN_SIZE / 2 + 10, 'Press SPACE to play...', self.txt_col)
 
 
+class GameOver(Screen):
+    def __init__(self, game, score):
+        self.game = game
+        self.score = score
+        self.cls_col = 5
+    
+    def update(self):
+        pass
+
+    def render(self):
+        gameover = 'Time Out !'
+        score = 'Score : %i' % self.score
+        pyxel.text((SCREEN_SIZE / 2) - int(len(gameover) * 2), (SCREEN_SIZE / 2) - 5, gameover, 0)
+        pyxel.text((SCREEN_SIZE / 2) - int(len(score) * 2), (SCREEN_SIZE / 2) + 5, score, 0)
+
 class Character:
     SPEED = 3
     GRAVITY = 1
@@ -239,7 +254,7 @@ class Game(Screen):
         ## animation
         self.pframe = 0
         ## timer
-        self.timer = 100 * 30
+        self.timer = 5 * 30
 
     def get_collisionnables(self):
         self.boxes = set()
@@ -268,6 +283,8 @@ class Game(Screen):
     def update(self):
         self.player.update(self.boxes, self.pieces)
         self.timer -= 1
+        if self.timer < 1:
+            self.game.change_screen(GameOver, self.player.score)
 
     def render(self):
         pyxel.bltm(self.camera.transformX(0), self.camera.transformY(0), self.tilemap, 0, 0, 256 * TILE_SIZE, 256 * TILE_SIZE)
