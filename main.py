@@ -238,6 +238,8 @@ class Game(Screen):
         self.player = Character(init_pos.x, init_pos.y)
         ## animation
         self.pframe = 0
+        ## timer
+        self.timer = 100 * 30
 
     def get_collisionnables(self):
         self.boxes = set()
@@ -265,11 +267,13 @@ class Game(Screen):
 
     def update(self):
         self.player.update(self.boxes, self.pieces)
+        self.timer -= 1
 
     def render(self):
         pyxel.bltm(self.camera.transformX(0), self.camera.transformY(0), self.tilemap, 0, 0, 256 * TILE_SIZE, 256 * TILE_SIZE)
         self.render_coins()
         self.player.draw(self.camera)
+        pyxel.text(2, 9, 'Timer : %is' % (self.timer / 30), 0)
 
 
 
