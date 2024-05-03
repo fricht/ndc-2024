@@ -176,18 +176,18 @@ class MainMenu(Screen):
 
 
 class GameOver(Screen):
-    def __init__(self, game, score):
+    def __init__(self, game, score, reason):
         self.game = game
         self.score = score
         self.cls_col = 5
+        self.reason = reason
     
     def update(self):
         pass
 
     def render(self):
-        gameover = 'Time Out !'
         score = 'Score : %i' % self.score
-        pyxel.text((SCREEN_SIZE / 2) - int(len(gameover) * 2), (SCREEN_SIZE / 2) - 5, gameover, 0)
+        pyxel.text((SCREEN_SIZE / 2) - int(len(self.reason) * 2), (SCREEN_SIZE / 2) - 5, self.reason, 0)
         pyxel.text((SCREEN_SIZE / 2) - int(len(score) * 2), (SCREEN_SIZE / 2) + 5, score, 0)
 
 class Character:
@@ -284,7 +284,9 @@ class Game(Screen):
         self.player.update(self.boxes, self.pieces)
         self.timer -= 1
         if self.timer < 1:
-            self.game.change_screen(GameOver, self.player.score)
+            self.game.change_screen(GameOver, self.player.score, 'Time Out !')
+        if self.player.pos.y > (256 * TILE_SIZE):
+            self.game.change_screen(GameOver, self.player.score, 'Game Over !')
 
     def render(self):
         pyxel.bltm(self.camera.transformX(0), self.camera.transformY(0), self.tilemap, 0, 0, 256 * TILE_SIZE, 256 * TILE_SIZE)
