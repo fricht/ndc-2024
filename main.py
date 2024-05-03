@@ -192,12 +192,15 @@ class GameOver(Screen):
         self.reason = reason
     
     def update(self):
-        pass
+        if pyxel.btnp(pyxel.KEY_SPACE):
+            self.game.change_screen(MainMenu)
 
     def render(self):
         score = 'Score : %i' % self.score
+        returnmenu = 'Appuyez sur espace pour recommencer'
         pyxel.text((SCREEN_SIZE / 2) - int(len(self.reason) * 2), (SCREEN_SIZE / 2) - 5, self.reason, 0)
         pyxel.text((SCREEN_SIZE / 2) - int(len(score) * 2), (SCREEN_SIZE / 2) + 5, score, 0)
+        pyxel.text((SCREEN_SIZE / 2) - int(len(returnmenu) * 2), (SCREEN_SIZE / 2) + 15, returnmenu, 0)
 
 class Character:
     SPEED = 3
