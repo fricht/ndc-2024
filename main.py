@@ -220,7 +220,7 @@ class Character:
 
     def update(self, boxes, pieces, etoiles3, etoiles5, coils):
         self.velocity.x = int(pyxel.btn(pyxel.KEY_RIGHT) - pyxel.btn(pyxel.KEY_LEFT)) * self.SPEED
-        self.velocity.y += self.GRAVITY
+        self.velocity.y = min(7, self.velocity.y + self.GRAVITY)
         if self.can_jump and (pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btn(pyxel.KEY_UP)):
             self.velocity.y = self.JUMP_HEIGHT
             self.can_jump = False
@@ -338,7 +338,7 @@ class Game(Screen):
         self.timer -= 1
         if self.timer < 1:
             self.game.change_screen(GameOver, self.player.score, 'Time Out !')
-        if self.player.pos.y > (256 * TILE_SIZE):
+        if self.player.pos.y > (220 * TILE_SIZE):
             self.game.change_screen(GameOver, self.player.score, 'Game Over !')
 
     def render(self):
