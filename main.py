@@ -193,7 +193,7 @@ class Character:
     def update(self, boxes, pieces, etoiles3, etoiles5, coils):
         self.velocity.x = int(pyxel.btn(pyxel.KEY_RIGHT) - pyxel.btn(pyxel.KEY_LEFT)) * self.SPEED
         self.velocity.y += self.GRAVITY
-        if self.can_jump and pyxel.btnp(pyxel.KEY_SPACE):
+        if self.can_jump and (pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btn(pyxel.KEY_UP)):
             self.velocity.y = self.JUMP_HEIGHT
             self.can_jump = False
         self.pos.x += self.velocity.x
@@ -258,6 +258,8 @@ class Game(Screen):
         self.player = Character(init_pos.x, init_pos.y)
         ## animation
         self.pframe = 0
+        ## timer
+        self.timer = 100 * 30
 
     def get_collisionnables(self):
         self.boxes = set()
@@ -301,11 +303,13 @@ class Game(Screen):
 
     def update(self):
         self.player.update(self.boxes, self.pieces, self.etoile3, self.etoile5, self.coils)
+        self.timer -= 1
 
     def render(self):
         pyxel.bltm(self.camera.transformX(0), self.camera.transformY(0), self.tilemap, 0, 0, 256 * TILE_SIZE, 256 * TILE_SIZE)
         self.render_coins()
         self.player.draw(self.camera)
+        pyxel.text(2, 9, 'Timer : %is' % (self.timer / 30), 0)
 
 
 
