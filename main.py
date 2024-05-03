@@ -39,6 +39,9 @@ PIECE_SPRITE = (
     (56, 160),
 )
 
+ETOILE3 = (8, 192)
+ETOILE5 = (16, 192)
+
 
 class MainGame:
     def __init__(self):
