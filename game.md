@@ -6,8 +6,9 @@ Par Gédéon Deveaux et Jules Courtiade-Vanin, la Slime Team.
 
 Lancer le jeu, appuyer sur espace pour commencer.
 
-Se déplacer avec les flèches gauche et droite, et sauter avec espace ou flèche du haut.
+Pour se déplacer, utilisez les flèches et la barre espace pour sauter.
 
-Le but est de rammasser le plus de pièces ou d'étoiles. Les pièces rapportent 1 point, l'étoile argent 3 et l'étoile dorée 5.
+Le but est de rammasser le plus de pièces ou d'étoiles dans le temps imparti.
+Les pièces rapportent 1 point, l'étoile argent 3 et l'étoile dorée 5.
 
-N'importe quelle collision recharge le saut.
+N'importe quelle collision recharge le saut (wall jump).
