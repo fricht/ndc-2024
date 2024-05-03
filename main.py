@@ -190,7 +190,7 @@ class Character:
     def update(self, boxes, pieces):
         self.velocity.x = int(pyxel.btn(pyxel.KEY_RIGHT) - pyxel.btn(pyxel.KEY_LEFT)) * self.SPEED
         self.velocity.y += self.GRAVITY
-        if self.can_jump and pyxel.btnp(pyxel.KEY_SPACE):
+        if self.can_jump and (pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btn(pyxel.KEY_UP)):
             self.velocity.y = self.JUMP_HEIGHT
             self.can_jump = False
         self.pos.x += self.velocity.x
