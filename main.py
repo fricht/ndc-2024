@@ -9,9 +9,11 @@ TILE_SIZE = 8
 TRANSPARENT = 5
 
 COLLISIONNABLES = {
-    (0,),
-    (0,),
+    (0, 0),
+    (0, 0),
+    (0, 0),
 }
+CHARACTER = (0, 104)
 
 
 
