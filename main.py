@@ -189,10 +189,17 @@ class Character:
             if box.is_box_colliding(self.hitbox.set_at(self.pos)):
                 self.velocity.x = 0
                 if self.velocity.x > 0:
-                    self.pos.x = self.hitbox.width + self.box.x + self.box.width
+                    self.pos.x = self.hitbox.width + box.x + box.width
                 else:
-                    self.pos.x = self.box.x
+                    self.pos.x = box.x
         self.pos.y += self.velocity.y
+        for box in boxes:
+            if box.is_box_colliding(self.hitbox.set_at(self.pos)):
+                self.velocity.y = 0
+                if self.velocity.y > 0:
+                    self.pos.y = self.hitbox.height + box.y + box.height
+                else:
+                    self.pos.y = box.y
 
     def draw(self, camera):
         camera.lerp_to(self.pos, 0.08)
