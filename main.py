@@ -3,6 +3,10 @@ import math
 
 
 
+SCREEN_SIZE = 128
+
+
+
 class MainGame:
     def __init__(self):
         self.screen = MainMenu()
@@ -28,6 +32,21 @@ class Screen: # abstract class
     def render(self):
         pass
 
+
+
+class Camera:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def transformX(self, point):
+        return point - self.x + SCREEN_SIZE / 2
+
+    def transformY(self, point):
+        return point - self.y + SCREEN_SIZE / 2
+
+    def transform(self, point):
+        return Vector2(self.transformX(point.x), self.transformX(point.y))
 
 
 
@@ -71,6 +90,12 @@ class Box:
     def is_box_colliding(self, box):
         return not (box.x > self.x + self.width or box.x + box.width < self.x or box.y > self.y + self.height or box.y + box.height < self.y)
 
+    def render(self, color, camera):
+        if camera == None:
+            pyxel.rect(self.x, self.y, self.width, self.height, color)
+        else :
+            pyxel.rect(camera.transformX(self.x), camera.transformY(self.y), self.width, self.height, color)
+
 
 
 class MainMenu(Screen):
@@ -78,6 +103,7 @@ class MainMenu(Screen):
         self.bg_col = 1
         self.fg_col = 2
         self.cls_col = 6
+        self.is_hovered = False
 
     def update(self):
         pass
