@@ -1,14 +1,15 @@
 import pyxel
+import math
 
-class Game:
-    def __init__(self, width, height, title):
-        pyxel.init(width, height, title=title)
-        self.x = 0
-        pyxel.run(self.update, self.render)
-    
+
+
+class MainGame:
+    def __init__(self):
+        self.screen = MainMenu()
+
     def update(self):
-        self.x = (self.x + 1) % pyxel.width
-    
+        self.screen.update()
+
     def render(self):
         pyxel.cls(self.screen.cls_col)
         self.screen.render()
@@ -28,6 +29,50 @@ class Screen: # abstract class
         pass
 
 
+
+
+class Vector2:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def copy(self):
+        return Vector2(self.x, self.y)
+
+    def get_length(self):
+        return math.sqrt(self.x ** 2 + self.y ** 2)
+
+    def normalize(self):
+        d = self.get_length()
+        self.x /= d
+        self.y /= d
+        return self
+
+
+class Box:
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+    # center
+    @property
+    def center(self):
+        return Vector2(self.x + self.width / 2, self.y + self.height / 2)
+    @center.setter
+    def center(self, value):
+        self.x = value.x - self.width / 2
+        self.y = value.y - self.height / 2
+
+    def is_point_inside(self, point):
+        return (point.x > self.x and point.x < self.x + self.width and point.y > self.y and point.y < self.y + self.height)
+
+    def is_box_colliding(self, box):
+        return not (box.x > self.x + self.width or box.x + box.width < self.x or box.y > self.y + self.height or box.y + box.height < self.y)
+
+
+
 class MainMenu(Screen):
     def __init__(self):
         self.bg_col = 1
@@ -40,4 +85,10 @@ class MainMenu(Screen):
     def render(self):
         pyxel.rect(10, 10, 15, 15, self.bg_col)
 
-Game(128, 128, 'lol ca marche')
+
+
+
+if __name__ == '__main__':
+    game = MainGame()
+    pyxel.init(128, 128, 'Window Name')
+    pyxel.run(game.update, game.render)
