@@ -1,15 +1,14 @@
 import pyxel
-import math
+import random
 
 
-
-SCREEN_SIZE = 128
+SCREEN_SIZE = 128 * 2
 
 
 
 class MainGame:
     def __init__(self):
-        self.screen = MainMenu()
+        self.screen = MainMenu(self)
 
     def update(self):
         self.screen.update()
@@ -59,7 +58,7 @@ class Vector2:
         return Vector2(self.x, self.y)
 
     def get_length(self):
-        return math.sqrt(self.x ** 2 + self.y ** 2)
+        return pyxel.sqrt(self.x ** 2 + self.y ** 2)
 
     def normalize(self):
         d = self.get_length()
@@ -99,22 +98,34 @@ class Box:
 
 
 class MainMenu(Screen):
-    def __init__(self):
-        self.bg_col = 1
-        self.fg_col = 2
-        self.cls_col = 6
-        self.is_hovered = False
+    def __init__(self, game):
+        self.game = game
+        self.gen_cols()
+        self.t = 0
+
+    def gen_cols(self):
+        self.cls_col = random.choice(range(16))
+        other_cols = list(range(16))
+        other_cols.remove(self.cls_col)
+        self.txt_col = random.choice(other_cols)
 
     def update(self):
-        pass
+        if pyxel.btnp(pyxel.KEY_SPACE):
+            self.game.change_screen(MainMenu)
+        self.t += 1
+        if self.t > 60:
+            self.t = 0
+            self.gen_cols()
 
     def render(self):
-        pyxel.rect(10, 10, 15, 15, self.bg_col)
+        pyxel.rect(10, 10, 15, 15, self.txt_col)
+        pyxel.text(SCREEN_SIZE / 2, SCREEN_SIZE / 2, 'Chicken Quest !', self.txt_col)
+        pyxel.text(0, SCREEN_SIZE / 2 + 10, 'Press SPACE to play...', self.txt_col)
 
 
 
 
 if __name__ == '__main__':
     game = MainGame()
-    pyxel.init(128, 128, 'Window Name')
+    pyxel.init(SCREEN_SIZE, SCREEN_SIZE, 'Chicken Quest')
     pyxel.run(game.update, game.render)
