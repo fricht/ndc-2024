@@ -35,6 +35,9 @@ PIECE = (32, 160)
 
 JUMP = (32, 176)
 
+ETOILE3 = (8, 192)
+ETOILE5 = (16, 192)
+
 
 class MainGame:
     def __init__(self):
