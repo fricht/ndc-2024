@@ -114,6 +114,11 @@ class Box:
         self.width = width
         self.height = height
 
+    def set_at(self, vec):
+        self.x = vec.x
+        self.y = vec.y
+        return self
+
     # center
     @property
     def center(self):
@@ -166,15 +171,28 @@ class MainMenu(Screen):
 class Character:
     SPEED = 2
     GRAVITY = 1
+    JUMP_HEIGHT = -10
 
     def __init__(self, x, y):
         self.pos = Vector2(x, y)
         self.hitbox = Box(x, y, TILE_SIZE, TILE_SIZE)
         self.velocity = Vector2(0, 0)
+        self.can_jump = True
 
-    def update(self):
+    def update(self, boxes):
         self.velocity.x = int(pyxel.btn(pyxel.KEY_DOWN) - pyxel.btn(pyxel.KEY_UP)) * self.SPEED
+        self.velocity.y += self.GRAVITY
+        if self.can_jump and pyxel.btnp(pyxel.KEY_SPACE):
+            self.velocity.y = self.JUMP_HEIGHT
         self.pos.x += self.velocity.x
+        for box in boxes:
+            if box.is_box_colliding(self.hitbox.set_at(self.pos)):
+                self.velocity.x = 0
+                if self.velocity.x > 0:
+                    self.pos.x = self.hitbox.width + self.box.x + self.box.width
+                else:
+                    self.pos.x = self.box.x
+        self.pos.y += self.velocity.y
 
     def draw(self, camera):
         camera.lerp_to(self.pos, 0.08)
@@ -203,10 +221,10 @@ class Game(Screen):
                     self.boxes.add(Box(TILE_SIZE * x, TILE_SIZE * y, TILE_SIZE, TILE_SIZE))
 
     def update(self):
-        self.player.update()
+        self.player.update(self.boxes)
 
     def render(self):
-        pyxel.bltm(self.camera.transformX(0), self.camera.transformY(0), self.tilemap, 0, 0, 256, 256)
+        pyxel.bltm(self.camera.transformX(0), self.camera.transformY(0), self.tilemap, 0, 0, 256 * TILE_SIZE, 256 * TILE_SIZE)
         self.player.draw(self.camera)
 
 
