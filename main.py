@@ -28,12 +28,16 @@ COLLISIONNABLES = {
     (32, 200),
     (40, 200)
 }
+COLLISIONNABLES = set(map(lambda x: (int(x[0]/TILE_SIZE), int(x[1] / TILE_SIZE)), COLLISIONNABLES))
+CHARACTER = (0, int(104/TILE_SIZE))
+PIECE = (int(32/TILE_SIZE), int(160/TILE_SIZE))
 
-CHARACTER = (0, 104)
-
-PIECE = (32, 160)
-
-JUMP = (32, 176)
+PIECE_SPRITE = (
+    (32, 160),
+    (40, 160),
+    (48, 160),
+    (56, 160),
+)
 
 
 class MainGame:
@@ -132,7 +136,7 @@ class Box:
         return (point.x > self.x and point.x < self.x + self.width and point.y > self.y and point.y < self.y + self.height)
 
     def is_box_colliding(self, box):
-        return not (box.x > self.x + self.width or box.x + box.width < self.x or box.y > self.y + self.height or box.y + box.height < self.y)
+        return not (box.x >= self.x + self.width or box.x + box.width <= self.x or box.y >= self.y + self.height or box.y + box.height <= self.y)
 
     def render(self, color, camera):
         if camera == None:
@@ -169,41 +173,53 @@ class MainMenu(Screen):
 
 
 class Character:
-    SPEED = 2
+    SPEED = 3
     GRAVITY = 1
-    JUMP_HEIGHT = -10
+    JUMP_HEIGHT = -7
 
     def __init__(self, x, y):
         self.pos = Vector2(x, y)
         self.hitbox = Box(x, y, TILE_SIZE, TILE_SIZE)
         self.velocity = Vector2(0, 0)
         self.can_jump = True
+        self.score = 0
 
-    def update(self, boxes):
-        self.velocity.x = int(pyxel.btn(pyxel.KEY_DOWN) - pyxel.btn(pyxel.KEY_UP)) * self.SPEED
+    def update(self, boxes, pieces):
+        self.velocity.x = int(pyxel.btn(pyxel.KEY_RIGHT) - pyxel.btn(pyxel.KEY_LEFT)) * self.SPEED
         self.velocity.y += self.GRAVITY
         if self.can_jump and pyxel.btnp(pyxel.KEY_SPACE):
             self.velocity.y = self.JUMP_HEIGHT
+            self.can_jump = False
         self.pos.x += self.velocity.x
         for box in boxes:
             if box.is_box_colliding(self.hitbox.set_at(self.pos)):
-                self.velocity.x = 0
                 if self.velocity.x > 0:
-                    self.pos.x = self.hitbox.width + box.x + box.width
+                    self.pos.x = box.x - self.hitbox.width
                 else:
-                    self.pos.x = box.x
+                    self.pos.x = box.x + box.width
+                self.velocity.x = 0
+                self.can_jump = True
         self.pos.y += self.velocity.y
         for box in boxes:
             if box.is_box_colliding(self.hitbox.set_at(self.pos)):
-                self.velocity.y = 0
                 if self.velocity.y > 0:
-                    self.pos.y = self.hitbox.height + box.y + box.height
+                    self.pos.y = box.y - self.hitbox.height
                 else:
-                    self.pos.y = box.y
+                    self.pos.y = box.y + box.height
+                self.velocity.y = 0
+                self.can_jump = True
+        collected = set()
+        for coin in pieces:
+            if coin.is_box_colliding(self.hitbox.set_at(self.pos)):
+                self.score += 1
+                collected.add(coin)
+        for coin in collected:
+            pieces.remove(coin)
 
     def draw(self, camera):
         camera.lerp_to(self.pos, 0.08)
         pyxel.blt(camera.transformX(self.pos.x), camera.transformY(self.pos.y), 0, 0, 104, TILE_SIZE, TILE_SIZE, colkey=TRANSPARENT)
+        pyxel.text(2, 2, "Score : %i" % self.score, 0)
 
 
 class Game(Screen):
@@ -213,25 +229,43 @@ class Game(Screen):
         pyxel.load("4.pyxres")
         self.tilemap = pyxel.tilemaps[0]
         ##
-        init_pos_x, init_pos_y = 10, 50
-        self.camera = Camera(init_pos_x, init_pos_y)
+        init_pos = self.get_collisionnables()
+        self.camera = Camera(init_pos.x, init_pos.y)
         ##
-        self.get_collisionnables()
-        ##
-        self.player = Character(init_pos_x, init_pos_y)
+        self.player = Character(init_pos.x, init_pos.y)
+        ## animation
+        self.pframe = 0
 
     def get_collisionnables(self):
         self.boxes = set()
+        self.pieces = set()
+        spawn_point = Vector2(0, 0)
         for x in range(self.tilemap.width):
             for y in range(self.tilemap.height):
                 if self.tilemap.pget(x, y) in COLLISIONNABLES:
                     self.boxes.add(Box(TILE_SIZE * x, TILE_SIZE * y, TILE_SIZE, TILE_SIZE))
+                elif self.tilemap.pget(x, y) == CHARACTER:
+                    spawn_point = Vector2(TILE_SIZE * x, TILE_SIZE * y)
+                    self.tilemap.pset(x, y, (0, 0))
+                elif self.tilemap.pget(x, y) == PIECE:
+                    self.pieces.add(Box(TILE_SIZE * x, TILE_SIZE * y, TILE_SIZE, TILE_SIZE))
+                    self.tilemap.pset(x, y, (0, 0))
+        return spawn_point
+
+    def render_coins(self):
+        frame = PIECE_SPRITE[int(self.pframe / 4)]
+        self.pframe += 1
+        if self.pframe >= 4 * len(PIECE_SPRITE):
+            self.pframe = 0
+        for box in self.pieces:
+            pyxel.blt(self.camera.transformX(box.x), self.camera.transformY(box.y), 0, frame[0], frame[1], TILE_SIZE, TILE_SIZE)
 
     def update(self):
-        self.player.update(self.boxes)
+        self.player.update(self.boxes, self.pieces)
 
     def render(self):
         pyxel.bltm(self.camera.transformX(0), self.camera.transformY(0), self.tilemap, 0, 0, 256 * TILE_SIZE, 256 * TILE_SIZE)
+        self.render_coins()
         self.player.draw(self.camera)
 
 
