@@ -337,9 +337,9 @@ class Game(Screen):
         self.player.update(self.boxes, self.pieces, self.etoile3, self.etoile5, self.coils)
         self.timer -= 1
         if self.timer < 1:
-            self.game.change_screen(GameOver, self.player.score, 'Time Out !')
-        if self.player.pos.y > (220 * TILE_SIZE):
-            self.game.change_screen(GameOver, self.player.score, 'Game Over !')
+            self.game.change_screen(GameOver, self.player.score, 'Plus de Temps !')
+        if self.player.pos.y > (256 * TILE_SIZE):
+            self.game.change_screen(GameOver, self.player.score, 'Perdu !')
 
     def render(self):
         pyxel.bltm(self.camera.transformX(0), self.camera.transformY(0), self.tilemap, 0, 0, 256 * TILE_SIZE, 256 * TILE_SIZE)
