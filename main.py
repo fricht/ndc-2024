@@ -9,12 +9,31 @@ TILE_SIZE = 8
 TRANSPARENT = 5
 
 COLLISIONNABLES = {
-    (0, 0),
-    (0, 0),
-    (0, 0),
+    # block
+    (8, 216),
+    (16, 216),
+    (24, 216),
+    (8, 224),
+    (16, 224),
+    (24, 224),
+    (8, 232),
+    (16, 232),
+    (24, 232),
+    # block fin vertical
+    (0, 216),
+    (0, 224),
+    (0, 232),
+    # poutre horizontale
+    (24, 200),
+    (32, 200),
+    (40, 200)
 }
+
 CHARACTER = (0, 104)
 
+PIECE = (32, 160)
+
+JUMP = (32, 176)
 
 
 class MainGame:
