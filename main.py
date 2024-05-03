@@ -4,6 +4,15 @@ import random
 
 SCREEN_SIZE = 128 * 2
 
+TILE_SIZE = 8
+
+TRANSPARENT = 5
+
+COLLISIONNABLES = {
+    (0,),
+    (0,),
+}
+
 
 
 class MainGame:
@@ -46,6 +55,16 @@ class Camera:
 
     def transform(self, point):
         return Vector2(self.transformX(point.x), self.transformX(point.y))
+
+    def set_to(self, point):
+        self.x = point.x
+        self.y = point.y
+        return self
+
+    def lerp_to(self, point, a):
+        self.x += a * (point.x - self.x)
+        self.y += a * (point.y - self.y)
+        return self
 
 
 
@@ -111,9 +130,9 @@ class MainMenu(Screen):
 
     def update(self):
         if pyxel.btnp(pyxel.KEY_SPACE):
-            self.game.change_screen(MainMenu)
+            self.game.change_screen(Game)
         self.t += 1
-        if self.t > 60:
+        if self.t > 30:
             self.t = 0
             self.gen_cols()
 
@@ -121,6 +140,53 @@ class MainMenu(Screen):
         pyxel.rect(10, 10, 15, 15, self.txt_col)
         pyxel.text(SCREEN_SIZE / 2, SCREEN_SIZE / 2, 'Chicken Quest !', self.txt_col)
         pyxel.text(0, SCREEN_SIZE / 2 + 10, 'Press SPACE to play...', self.txt_col)
+
+
+class Character:
+    SPEED = 2
+    GRAVITY = 1
+
+    def __init__(self, x, y):
+        self.pos = Vector2(x, y)
+        self.hitbox = Box(x, y, TILE_SIZE, TILE_SIZE)
+        self.velocity = Vector2(0, 0)
+
+    def update(self):
+        self.velocity.x = int(pyxel.btn(pyxel.KEY_DOWN) - pyxel.btn(pyxel.KEY_UP)) * self.SPEED
+        self.pos.x += self.velocity.x
+
+    def draw(self, camera):
+        camera.lerp_to(self.pos, 0.08)
+        pyxel.blt(camera.transformX(self.pos.x), camera.transformY(self.pos.y), 0, 0, 104, TILE_SIZE, TILE_SIZE, colkey=TRANSPARENT)
+
+
+class Game(Screen):
+    def __init__(self, game):
+        self.cls_col = TRANSPARENT + 1
+        self.game = game
+        pyxel.load("4.pyxres")
+        self.tilemap = pyxel.tilemaps[0]
+        ##
+        init_pos_x, init_pos_y = 10, 50
+        self.camera = Camera(init_pos_x, init_pos_y)
+        ##
+        self.get_collisionnables()
+        ##
+        self.player = Character(init_pos_x, init_pos_y)
+
+    def get_collisionnables(self):
+        self.boxes = set()
+        for x in range(self.tilemap.width):
+            for y in range(self.tilemap.height):
+                if self.tilemap.pget(x, y) in COLLISIONNABLES:
+                    self.boxes.add(Box(TILE_SIZE * x, TILE_SIZE * y, TILE_SIZE, TILE_SIZE))
+
+    def update(self):
+        self.player.update()
+
+    def render(self):
+        pyxel.bltm(self.camera.transformX(0), self.camera.transformY(0), self.tilemap, 0, 0, 256, 256)
+        self.player.draw(self.camera)
 
 
 
