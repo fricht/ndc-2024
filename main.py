@@ -179,7 +179,6 @@ class MainMenu(Screen):
             self.gen_cols()
 
     def render(self):
-        # pyxel.blt(30, 30, 0, 0, 104, TILE_SIZE, TILE_SIZE)
         title = 'Slime Quest !'
         pyxel.text(SCREEN_SIZE / 2 - (int(len(title) * 2)), SCREEN_SIZE / 2, title, self.txt_col)
         play = 'Appuyez sur espace pour jouer...'
