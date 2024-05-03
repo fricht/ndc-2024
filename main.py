@@ -39,6 +39,8 @@ PIECE_SPRITE = (
     (56, 160),
 )
 
+JUMP = (32, 176)
+
 ETOILE3 = (8, 192)
 ETOILE5 = (16, 192)
 
@@ -179,6 +181,7 @@ class Character:
     SPEED = 3
     GRAVITY = 1
     JUMP_HEIGHT = -7
+    COIL_JUMP_HEIGHT = -12
 
     def __init__(self, x, y):
         self.pos = Vector2(x, y)
@@ -187,7 +190,7 @@ class Character:
         self.can_jump = True
         self.score = 0
 
-    def update(self, boxes, pieces):
+    def update(self, boxes, pieces, etoiles3, etoiles5, coils):
         self.velocity.x = int(pyxel.btn(pyxel.KEY_RIGHT) - pyxel.btn(pyxel.KEY_LEFT)) * self.SPEED
         self.velocity.y += self.GRAVITY
         if self.can_jump and pyxel.btnp(pyxel.KEY_SPACE):
@@ -218,6 +221,23 @@ class Character:
                 collected.add(coin)
         for coin in collected:
             pieces.remove(coin)
+        collected = set()
+        for coin in etoiles3:
+            if coin.is_box_colliding(self.hitbox.set_at(self.pos)):
+                self.score += 3
+                collected.add(coin)
+        for coin in collected:
+            etoiles3.remove(coin)
+        collected = set()
+        for coin in etoiles5:
+            if coin.is_box_colliding(self.hitbox.set_at(self.pos)):
+                self.score += 5
+                collected.add(coin)
+        for coin in collected:
+            etoiles5.remove(coin)
+        for coil in coils:
+            if coil.is_box_colliding(self.hitbox.set_at(self.pos)):
+                self.velocity.y = self.COIL_JUMP_HEIGHT
 
     def draw(self, camera):
         camera.lerp_to(self.pos, 0.08)
@@ -242,6 +262,9 @@ class Game(Screen):
     def get_collisionnables(self):
         self.boxes = set()
         self.pieces = set()
+        self.etoile3 = set()
+        self.etoile5 = set()
+        self.coils = set()
         spawn_point = Vector2(0, 0)
         for x in range(self.tilemap.width):
             for y in range(self.tilemap.height):
@@ -253,6 +276,15 @@ class Game(Screen):
                 elif self.tilemap.pget(x, y) == PIECE:
                     self.pieces.add(Box(TILE_SIZE * x, TILE_SIZE * y, TILE_SIZE, TILE_SIZE))
                     self.tilemap.pset(x, y, (0, 0))
+                elif self.tilemap.pget(x, y) == tuple(map(lambda x: x / 8, ETOILE3)):
+                    self.etoile3.add(Box(TILE_SIZE * x, TILE_SIZE * y, TILE_SIZE, TILE_SIZE))
+                    self.tilemap.pset(x, y, (0, 0))
+                elif self.tilemap.pget(x, y) == tuple(map(lambda x: x / 8, ETOILE5)):
+                    self.etoile5.add(Box(TILE_SIZE * x, TILE_SIZE * y, TILE_SIZE, TILE_SIZE))
+                    self.tilemap.pset(x, y, (0, 0))
+                elif self.tilemap.pget(x, y) == tuple(map(lambda x: x / 8, JUMP)):
+                    self.coils.add(Box(TILE_SIZE * x, TILE_SIZE * y, TILE_SIZE, TILE_SIZE))
+                    self.tilemap.pset(x, y, (int(JUMP[0] / 8) + 1, int(JUMP[1] / 8)))
         return spawn_point
 
     def render_coins(self):
@@ -262,9 +294,13 @@ class Game(Screen):
             self.pframe = 0
         for box in self.pieces:
             pyxel.blt(self.camera.transformX(box.x), self.camera.transformY(box.y), 0, frame[0], frame[1], TILE_SIZE, TILE_SIZE)
+        for box in self.etoile3:
+            pyxel.blt(self.camera.transformX(box.x), self.camera.transformY(box.y), 0, ETOILE3[0], ETOILE3[1], TILE_SIZE, TILE_SIZE)
+        for box in self.etoile5:
+            pyxel.blt(self.camera.transformX(box.x), self.camera.transformY(box.y), 0, ETOILE5[0], ETOILE5[1], TILE_SIZE, TILE_SIZE)
 
     def update(self):
-        self.player.update(self.boxes, self.pieces)
+        self.player.update(self.boxes, self.pieces, self.etoile3, self.etoile5, self.coils)
 
     def render(self):
         pyxel.bltm(self.camera.transformX(0), self.camera.transformY(0), self.tilemap, 0, 0, 256 * TILE_SIZE, 256 * TILE_SIZE)
@@ -276,5 +312,5 @@ class Game(Screen):
 
 if __name__ == '__main__':
     game = MainGame()
-    pyxel.init(SCREEN_SIZE, SCREEN_SIZE, 'Chicken Quest')
+    pyxel.init(SCREEN_SIZE, SCREEN_SIZE, 'Chicken Quest', fps=30)
     pyxel.run(game.update, game.render)
